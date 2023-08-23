@@ -449,11 +449,9 @@ header {
 }
 
 .pswp__custom-caption {
-  background: rgba(0,0,0, 0.75);
+  background: rgba(0,0,0, 0);
   font-size: 16px;
   color: #fff;
-  padding: 2px 18px;
-  border-radius: 4px;
   position: absolute;
   left: 50%;
   bottom: 16px;
@@ -466,4 +464,10 @@ header {
 }
 .hidden-caption-content {
   display: none;
+}
+
+.exif-info{
+  padding: 2px 18px;
+  border-radius: 4px;
+  background: rgba(0,0,0, 0.75);
 }

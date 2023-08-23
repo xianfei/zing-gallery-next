@@ -1,6 +1,7 @@
 module.exports = {
 	cdnDomain: './',
 	title: 'Zing Gallery Next',
+	picFormat: 'jpg',
 	avatar: './avatar.png',
 	wording: {
 		noAccess: '抱歉，你没有权限访问'
@@ -11,7 +12,6 @@ module.exports = {
 		  sort: 1
 		}, 
 		"手机摄影": {
-			thumbnail: "打马而过.jpg",
 			description:"Hello world",
 		  sort: 1
 		}, 

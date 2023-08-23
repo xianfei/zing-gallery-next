@@ -9,7 +9,7 @@ const path = require('path');
 
 
 module.exports = function(imageSizeInfo, cfg, buildPath, albumName){
-    ejs.renderFile(`src/views/album.ejs`, {photos: imageSizeInfo, config:cfg, name: albumName, description: cfg.albums[albumName]?.description }, {}, (err, str) => {
+    ejs.renderFile(`src/views/album.ejs`, {photos: imageSizeInfo, config:cfg, name: cfg.albums[albumName]?.name || albumName, description: cfg.albums[albumName]?.description }, {}, (err, str) => {
         if (err) {
             console.error(`Error rendering template:`, err);
         } else {

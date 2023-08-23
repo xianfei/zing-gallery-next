@@ -22,18 +22,18 @@ function getPathWithoutExt(filePath) {
     return path.join(parsedPath.dir, parsedPath.name);
 }
 
-async function processImage(inputPath, outputPath, smallSize) {
+async function processImage(inputPath, outputPath, smallSize, config) {
     const metadata = await sharp(inputPath).metadata();
     const data = metadata.exif ? exifReader(metadata.exif) : null;
 
     const photo_info = {
         width: metadata.width,
         height: metadata.height,
-        exif: data ? {
+        exif: (data && data.exif) ? {
             // 相机型号
             "Model": data.image.Model || '',
             // 生成时间                   
-            "Time": data.exif.DateTimeOriginal.toLocaleString('zh-cn', { timeZone: 'UTC' }) || '',
+            "Time": data.exif.DateTimeOriginal?.toLocaleString('zh-cn', { timeZone: 'UTC' }) || '',
             // 光圈F值       
             "FNumber": data.exif.FNumber || '',
             // 焦距                        
@@ -41,12 +41,12 @@ async function processImage(inputPath, outputPath, smallSize) {
             // 感光度
             "ISO": data.exif.ISO || '',
             // 快门速度
-            "speed": ('1/' + Math.round(Math.pow(2, data.exif.ShutterSpeedValue))) || ''
+            "speed": data.exif.ShutterSpeedValue ? (Math.pow(2, data.exif.ShutterSpeedValue) > 1.0 ? ('1/' + Math.round(Math.pow(2, data.exif.ShutterSpeedValue))) : Math.round(1 / Math.pow(2, data.exif.ShutterSpeedValue))) : '' || ''
         } : null
     };
 
     // 如果文件已存在，则跳过处理
-    if (await fs.pathExists(getPathWithoutExt(outputPath) + '-small.webp')) {
+    if (await fs.pathExists(getPathWithoutExt(outputPath) + '-small.' + config.picFormat)) {
 
         return photo_info
     }
@@ -54,13 +54,16 @@ async function processImage(inputPath, outputPath, smallSize) {
     await fs.ensureDir(path.dirname(outputPath));
 
     // 复制原始图片
-    await fs.copyFile(inputPath, outputPath);
+    if (inputPath.toLowerCase().endsWith('.' + config.picFormat)) {
+        await fs.copyFile(inputPath, outputPath);
+    } else {
+        await sharp(inputPath).toFile(outputPath);
+    }
 
     // 创建缩小的图片
-    const outputPathSmall = getPathWithoutExt(outputPath) + '-small.webp'
+    const outputPathSmall = getPathWithoutExt(outputPath) + '-small.' + config.picFormat
     await sharp(inputPath)
         .resize(smallSize)
-        .webp({ quality: 80 })
         .toFile(outputPathSmall);
 
 
@@ -69,7 +72,7 @@ async function processImage(inputPath, outputPath, smallSize) {
 
 async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config, buildPath, albumName) {
     const files = await fs.readdir(albumPath);
-    const jpgFiles = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.webp') || file.endsWith('.avif'));
+    const jpgFiles = files.filter(file => file.toLowerCase().endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.webp') || file.endsWith('.avif'));
 
     const imageSizeInfo = [];
 
@@ -81,12 +84,12 @@ async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config
         const outputPath = path.join(outputAlbumPath, file);
 
         // 处理图片，创建缩小版本
-        const dimensions = await processImage(inputPath, outputPath, 400);
+        const dimensions = await processImage(inputPath, getPathWithoutExt(outputPath) + '.' + config.picFormat, 400, config);
         if (dimensions) {
             imageSizeInfo.push({
                 name: path.parse(file).name,
-                src: file,
-                smallsrc: path.parse(file).name + '-small.webp',
+                src: path.parse(file).name + '.' + config.picFormat,
+                smallsrc: path.parse(file).name + '-small.' + config.picFormat,
                 size: "" + dimensions.width + "x" + dimensions.height,
                 width: dimensions.width,
                 height: dimensions.height,
@@ -95,21 +98,25 @@ async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config
         }
 
         // 将第一张图片设置为缩略图
-        if (i === 0) {
-            const thumbnailOutputPath = path.join(outputAlbumPath, 'thumbnail.webp');
+        if ((!config.albums[albumName]?.thumbnail && i === 0) || config.albums[albumName]?.thumbnail == file) {
+            const thumbnailOutputPath = path.join(outputAlbumPath, 'thumbnail.' + config.picFormat);
             if (!(await fs.pathExists(thumbnailOutputPath))) {
-                await fs.copyFile(getPathWithoutExt(outputPath)+ '-small.webp', thumbnailOutputPath);
+                await fs.copyFile(getPathWithoutExt(outputPath) + '-small.' + config.picFormat, thumbnailOutputPath);
             }
         }
     }
 
     genAlbum(imageSizeInfo, config, buildPath, albumName)
+
+    return imageSizeInfo.length > 0
 }
 
 async function main(config, buildPath) {
     const albums = await fs.readdir(inputDir);
 
-    genIndex(albums, config, buildPath)
+    albums_render = []
+
+    albums.sort(config.sortFunc)
 
     for (const album of albums) {
         console.log("album:", album)
@@ -119,9 +126,11 @@ async function main(config, buildPath) {
 
 
         if ((await fs.stat(albumPath)).isDirectory()) {
-            await processAlbum(albumPath, outputAlbumPath, null, config, buildPath, album);
+            if (await processAlbum(albumPath, outputAlbumPath, null, config, buildPath, album)) albums_render.push(album);
         }
     }
+
+    genIndex(albums_render, config, buildPath)
 }
 
 module.exports = function (config, buildPath) {

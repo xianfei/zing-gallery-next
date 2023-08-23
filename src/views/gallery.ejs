@@ -12,11 +12,11 @@
 		<a href="./">
 			<h1 class="header-title"><%= title %></h1>
 		</a>
+		<% if(description!='') {%>
 		<ul class="m-nav">
-			<li><a href="<%= relPath %>/">首页</a><span class="sep">/</span></li>
-			<li><a href="javascript:void(0)" onclick="alert('一个正在实现中的功能…')">分享</a><span class="sep">/</span></li>
-			<li><a href="javascript:void(0)" onclick="alert('一个正在实现中的功能…')">搜索</a></li>
+			<%- description %>
 		</ul>
+		<% } %>
 	</header>
   <div class="layout">
   	<%- galleryHtml %>

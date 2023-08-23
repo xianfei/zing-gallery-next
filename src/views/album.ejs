@@ -6,7 +6,7 @@
 <div class="album-header">
   <h1 class="album-title"><%= name %></h1>
   <% if (description && description !== '') { %>
-    <h2 class="des-title">「 <%= description %> 」</h2>
+    <h2 class="des-title">「 <%- description %> 」</h2>
   <% } %>
 </div>
 <div class="photos" itemscope itemtype="http://schema.org/ImageGallery">
@@ -14,14 +14,16 @@
       <figure class="thumb js-thumb js-photos-thumb" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
           <a class="img-wrap js-img-wrap" href="<%= config.cdnDomain %><%= photo.src %>" itemprop="contentUrl" data-pswp-width="<%= photo.width %>" data-pswp-height="<%= photo.height %>">
             <img class="js-image" data-not-lz="true" alt="<%= photo.name %>" data-src="<%= config.cdnDomain %><%= photo.smallsrc %>" src="../preloader.gif" itemprop="thumbnail"/>
-            <div  style="display:none"><div class="hidden-caption-content">
+            <div style="display:none" class="hidden-caption-content">
               <% if (photo.exif) {%>
+                <div class="exif-info">
+                  
                 <% if (photo.exif.Model) {%>
                   <p class="exif-p"><b><i class="icon-camera"></i></b><span><%= photo.exif.Model %></span></p>
                 <% } %>
   
                 <% if (photo.exif.FNumber || photo.exif.speed || photo.exif.ISO) {%>
-                  <p class="exif-p"><b><i class="icon-image"></i></b><span>f/<%= photo.exif.FNumber %>, <%= photo.exif.speed %>s, ISO<%= photo.exif.ISO %></span></p>
+                  <p class="exif-p"><b><i class="icon-image"></i></b><span>f/<%= photo.exif.FNumber %>, <%= photo.exif.speed?''+photo.exif.speed+'s, ':'' %> ISO<%= photo.exif.ISO %></span></p>
                 <% } %>
   
                 <% if (photo.exif.focalLength) {%>
@@ -31,9 +33,10 @@
                 <% if (photo.exif.Time) {%>
                   <p class="exif-p"><b><i class="icon-clock"></i></b><span><%= photo.exif.Time %></span></p>
                 <% } %>
+              </div>
               <% } %>
               
-            </div></div>
+            </div>
           </a>
           <figcaption itemprop="caption description"><%= photo.name %></figcaption>
           
@@ -71,7 +74,7 @@
             captionHTML = hiddenCaption.innerHTML;
           } else {
             // get caption from alt attribute
-            captionHTML = currSlideElement.querySelector('img').getAttribute('alt');
+            // captionHTML = currSlideElement.querySelector('img').getAttribute('alt');
           }
         }
         el.innerHTML = captionHTML || '';
