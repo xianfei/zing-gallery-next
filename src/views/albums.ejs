@@ -1,0 +1,29 @@
+<% if (albums.length>0){ %>
+  <div class="albums">
+    <% albums.forEach(function(album){ %>
+      <figure class="thumb js-thumb" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+          <% if(album.password) {%>
+          <a class="js-secret-album img-wrap" data-href="./<%= album.url %>" data-tips="<%= album.passwordTips %>">
+            <div class="bg-lock">
+              <i class="icon-lock"></i>
+            </div>
+          <% } else { %>
+          <a href="./<%= album.url %>" class="img-wrap">
+          <% } %>
+            <img class="js-image" alt="<%= album.name %>" data-src="<%= config.cdnDomain %><%= album.url %>/thumbnail.jpg" src="./preloader.gif" itemprop="thumbnail" data-not-lz="true" />
+          </a>
+          <figcaption itemprop="caption description"><%= album.name %></figcaption>
+      </figure>
+    <% }) %>
+    <% for (var i=0; i < 10; i++) {%>
+      <figure class="thumb hide"></figure>
+    <% } %>
+  </div>
+  <div tabindex="-1" class="overlay js-overlay"></div>
+  <div class="dialog js-dialog">
+    <form action="./233" method="post" class="js-form">
+      <input class="input-lock js-input-lock" type="text" name="password" placeholder="password needed" />
+      <input type="submit" value="确定" class="js-modal-yes btn-default" />
+    </form>
+  </div>
+<% } %>

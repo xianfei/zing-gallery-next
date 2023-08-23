@@ -1,46 +1,64 @@
-const cfg = require('./config')
+const my_config = require('./config')
 const ejs = require('ejs');
 const fs = require('fs');
 const webpack = require('webpack');
-const config = require('./webpack.config.js');
-
+const webpack_config = require('./webpack.config.js');
+const path = require('path');
 
 // build path
-const buildPath = 'build';
+const buildPath = webpack_config.output.path;
 if (!fs.existsSync(buildPath)) {
     fs.mkdirSync(buildPath);
 }
 
-function getAlbums(){
-    let albs = []
-    for(var i of Object.keys(cfg.albums)){
-        albs.push({name:i,url:i,})
-    }
-    return albs
-}
+require('./src/processPhotos')(my_config,buildPath)
 
-function renderHtml(html, output){
-    ejs.renderFile(`src/views/gallery.ejs`,  { avatar: cfg.avatar, title: cfg.title, galleryHtml: html}, {}, (err, str) => {
-        if (err) {
-            console.error(`Error rendering template ${item.template}:`, err);
-        } else {
-            fs.writeFileSync(`${buildPath}/${output}`, str);
-            console.log(`Generated static page: ${buildPath}/${output}`);
-        }
-    });
-}
-
-ejs.renderFile(`src/views/album.ejs`, {albums:getAlbums(),photos:[],config:cfg }, {}, (err, str) => {
-    if (err) {
-        console.error(`Error rendering template:`, err);
-    } else {
-        renderHtml(str, 'album.html')
-    }
-})
-
-webpack(config , (err, stats) => {
+webpack(webpack_config , (err, stats) => {
     if (err || stats.hasErrors()) {
         console.error(`Webpack error:`, err);
     }
     // 成功执行完构建
+});
+
+const srcDir = __dirname + "/src/public";
+const destDir = buildPath;
+
+fs.readdir(srcDir, (err, files) => {
+  if (err) {
+    console.error(`Error reading directory: ${err.message}`);
+    return;
+  }
+
+  files.forEach(file => {
+    const srcFile = path.join(srcDir, file);
+    const destFile = path.join(destDir, file);
+
+    fs.stat(srcFile, (err, stats) => {
+      if (err) {
+        console.error(`Error reading file: ${err.message}`);
+        return;
+      }
+
+      if (!stats.isFile()) {
+        console.log(`Skipping non-file: ${srcFile}`);
+        return;
+      }
+
+      fs.access(destFile, fs.constants.F_OK, err => {
+        if (!err) {
+          console.log(`File already exists, skipping: ${destFile}`);
+          return;
+        }
+
+        fs.copyFile(srcFile, destFile, err => {
+          if (err) {
+            console.error(`Error copying file: ${err.message}`);
+            return;
+          }
+
+          console.log(`Copied file: ${srcFile} to ${destFile}`);
+        });
+      });
+    });
   });
+});
