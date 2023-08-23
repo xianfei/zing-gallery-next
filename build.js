@@ -51,7 +51,6 @@ fs.readdir(srcDir, (err, files) => {
 
       fs.access(destFile, fs.constants.F_OK, err => {
         if (!err) {
-          console.log(`File already exists, skipping: ${destFile}`);
           return;
         }
 
@@ -60,8 +59,6 @@ fs.readdir(srcDir, (err, files) => {
             console.error(`Error copying file: ${err.message}`);
             return;
           }
-
-          console.log(`Copied file: ${srcFile} to ${destFile}`);
         });
       });
     });

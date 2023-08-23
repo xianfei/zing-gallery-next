@@ -16,47 +16,10 @@ const inputDir = path.join(__dirname, '../photos');
 const outputDir = path.join(__dirname, '../build');
 
 async function processImage(inputPath, outputPath, smallSize) {
-    // 如果文件已存在，则跳过处理
-    if (await fs.pathExists(outputPath)) {
-        const metadata = await sharp(inputPath).metadata();
-        const data = metadata.exif ? exifReader(metadata.exif) : null;
-        return {
-            width: metadata.width,
-            height: metadata.height,
-            exif: data ? {
-                // 相机型号
-                "Model": data.image.Model || '',
-                // 生成时间                   
-                "Time": data.exif.DateTimeOriginal.toLocaleString('zh-cn', { timeZone: 'UTC' }) || '',
-                // 光圈F值       
-                "FNumber": data.exif.FNumber || '',
-                // 焦距                        
-                "focalLength": data.exif.FocalLengthIn35mmFormat || '',
-                // 感光度
-                "ISO": data.exif.ISO || '',
-                // 快门速度
-                "speed": ('1/' + Math.round(Math.pow(2, data.exif.ShutterSpeedValue))) || ''
-            } : null
-        };
-    }
-
-    await fs.ensureDir(path.dirname(outputPath));
-
-    // 复制原始图片
-    await fs.copyFile(inputPath, outputPath);
-
-    // 获取图像尺寸信息
     const metadata = await sharp(inputPath).metadata();
-
-    // 创建缩小的图片
-    const outputPathSmall = outputPath.replace('.jpg', '-small.jpg');
-    await sharp(inputPath)
-        .resize(smallSize)
-        .toFile(outputPathSmall);
-
     const data = metadata.exif ? exifReader(metadata.exif) : null;
 
-    return {
+    const photo_info = {
         width: metadata.width,
         height: metadata.height,
         exif: data ? {
@@ -74,6 +37,25 @@ async function processImage(inputPath, outputPath, smallSize) {
             "speed": ('1/' + Math.round(Math.pow(2, data.exif.ShutterSpeedValue))) || ''
         } : null
     };
+    // 如果文件已存在，则跳过处理
+    if (await fs.pathExists(outputPath)) {
+
+        return photo_info
+    }
+
+    await fs.ensureDir(path.dirname(outputPath));
+
+    // 复制原始图片
+    await fs.copyFile(inputPath, outputPath);
+
+    // 创建缩小的图片
+    const outputPathSmall = outputPath.replace('.jpg', '-small.jpg');
+    await sharp(inputPath)
+        .resize(smallSize)
+        .toFile(outputPathSmall);
+
+
+    return photo_info
 }
 
 async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config, buildPath, albumName) {
