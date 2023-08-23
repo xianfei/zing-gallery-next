@@ -1,3 +1,10 @@
+/*
+ *  处理图片并调用生成网页
+ *      by xianfei 2023.8 （图片处理是GPT写的）
+ * 
+ *  GPT-4 Prompt： 我有一个名为photos的文件夹，有若干个子文件夹为相册名，每个子文件夹中有一些jpg图片。我需要将其输出到output文件夹中，每个子文件夹中包含的原来的原尺寸图片和一张名为“文件名+small”的缩小的图片，并选择第一张图片放入该文件夹命名为thumbnail，如果output中存在有已经处理的图片，则只对新增图片进行处理，在处理每个图片的同时，在相册名文件夹中创建一个json，列出每个处理过的图像的长宽信息，请帮我使用nodejs写一段代码完成这个任务。
+ */
+
 const fs = require('fs-extra');
 const path = require('path');
 const sharp = require('sharp');

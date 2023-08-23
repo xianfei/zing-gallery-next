@@ -5,7 +5,7 @@ const webpack = require('webpack');
 const webpack_config = require('./webpack.config.js');
 const path = require('path');
 
-// build path
+// 检查build文件夹是否存在，如果不存在则创建
 const buildPath = webpack_config.output.path;
 if (!fs.existsSync(buildPath)) {
     fs.mkdirSync(buildPath);
@@ -13,12 +13,17 @@ if (!fs.existsSync(buildPath)) {
 
 require('./src/processPhotos')(my_config,buildPath)
 
+// Webpack打包
 webpack(webpack_config , (err, stats) => {
     if (err || stats.hasErrors()) {
         console.error(`Webpack error:`, err);
     }
     // 成功执行完构建
 });
+
+// 拷贝public资源
+// 下面这段是GPT-4写的
+// Prompt: 请使用nodejs写一段代码，把a文件夹所有文件拷到b文件夹，如果存在则跳过
 
 const srcDir = __dirname + "/src/public";
 const destDir = buildPath;

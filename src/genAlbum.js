@@ -1,3 +1,8 @@
+/*
+ *  生成每个相册所对应的HTML块
+ *      by xianfei 2023.8
+ */
+
 const ejs = require('ejs');
 const renderHtml = require('./renderHtml')
 const path = require('path');
