@@ -15,6 +15,13 @@ const exifReader = require('exif-reader');
 const inputDir = path.join(__dirname, '../photos');
 const outputDir = path.join(__dirname, '../build');
 
+function getPathWithoutExt(filePath) {
+    const parsedPath = path.parse(filePath);
+
+    // 获取不带扩展名的文件路径
+    return path.join(parsedPath.dir, parsedPath.name);
+}
+
 async function processImage(inputPath, outputPath, smallSize) {
     const metadata = await sharp(inputPath).metadata();
     const data = metadata.exif ? exifReader(metadata.exif) : null;
@@ -37,8 +44,9 @@ async function processImage(inputPath, outputPath, smallSize) {
             "speed": ('1/' + Math.round(Math.pow(2, data.exif.ShutterSpeedValue))) || ''
         } : null
     };
+
     // 如果文件已存在，则跳过处理
-    if (await fs.pathExists(outputPath)) {
+    if (await fs.pathExists(getPathWithoutExt(outputPath) + '-small.webp')) {
 
         return photo_info
     }
@@ -49,9 +57,10 @@ async function processImage(inputPath, outputPath, smallSize) {
     await fs.copyFile(inputPath, outputPath);
 
     // 创建缩小的图片
-    const outputPathSmall = outputPath.replace('.jpg', '-small.jpg');
+    const outputPathSmall = getPathWithoutExt(outputPath) + '-small.webp'
     await sharp(inputPath)
         .resize(smallSize)
+        .webp({ quality: 80 })
         .toFile(outputPathSmall);
 
 
@@ -60,7 +69,7 @@ async function processImage(inputPath, outputPath, smallSize) {
 
 async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config, buildPath, albumName) {
     const files = await fs.readdir(albumPath);
-    const jpgFiles = files.filter(file => file.endsWith('.jpg'));
+    const jpgFiles = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.webp') || file.endsWith('.avif'));
 
     const imageSizeInfo = [];
 
@@ -77,7 +86,7 @@ async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config
             imageSizeInfo.push({
                 name: path.parse(file).name,
                 src: file,
-                smallsrc: file.replace('.jpg', '-small.jpg'),
+                smallsrc: path.parse(file).name + '-small.webp',
                 size: "" + dimensions.width + "x" + dimensions.height,
                 width: dimensions.width,
                 height: dimensions.height,
@@ -87,9 +96,9 @@ async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config
 
         // 将第一张图片设置为缩略图
         if (i === 0) {
-            const thumbnailOutputPath = path.join(outputAlbumPath, 'thumbnail.jpg');
+            const thumbnailOutputPath = path.join(outputAlbumPath, 'thumbnail.webp');
             if (!(await fs.pathExists(thumbnailOutputPath))) {
-                await fs.copyFile(outputPath.replace('.jpg', '-small.jpg'), thumbnailOutputPath);
+                await fs.copyFile(getPathWithoutExt(outputPath)+ '-small.webp', thumbnailOutputPath);
             }
         }
     }
