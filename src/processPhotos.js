@@ -28,7 +28,7 @@ async function processImage(inputPath, outputPath, smallSize) {
                 // 感光度
                 "ISO": data.exif.ISO || '',
                 // 快门速度
-                "speed": ('1/' + (2 ^ data.exif.ShutterSpeedValue)) || ''
+                "speed": ('1/' + Math.round(Math.pow(2, data.exif.ShutterSpeedValue))) || ''
             } : null
         };
     }
