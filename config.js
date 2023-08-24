@@ -1,8 +1,9 @@
 module.exports = {
 	cdnDomain: './',
 	title: 'Zing Gallery Next',
-	picFormat: 'jpg',
+	picFormat: 'webp',
 	picQuality: 75,
+	imgFormat:["avif","webp"],
 	footer:'Xianfei ©️ 2023',
 	avatar: './avatar.png',
 	wording: {
