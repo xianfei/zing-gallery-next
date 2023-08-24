@@ -12,18 +12,16 @@
 		</a>
 		<a href="<%= relPath %>/">
 			<h1 class="header-title"><%= title %></h1>
+			<% if(description!='') {%>
+			<h2 class="des-title"><%- description %></h2>
+			<% } %>		
 		</a>
-		<% if(description!='') {%>
-		<ul class="m-nav">
-			<%- description %>
-		</ul>
-		<% } %>		
 	</header>
   <div class="layout">
   	<%- galleryHtml %>
   </div>
   <footer class="footer">
-  	<p>Powered by <a href="https://github.com/xianfei/zing-gallery-next" target="_blank">zing-gallery-next</a></p>
+  	<p><%- config.footer?(config.footer+', p'):'P' %>owered by <a href="https://github.com/xianfei/zing-gallery-next" target="_blank">zing-gallery-next</a></p>
 	<br>
   </footer>
 	<script src="<%= relPath %>/main.js"></script>

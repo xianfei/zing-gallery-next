@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = function (html, output, cfg, buildPath, relPath){
-    ejs.renderFile(`src/views/gallery.ejs`,  { avatar: relPath + cfg.avatar.replace('./','/'), title: cfg.title, galleryHtml: html, relPath: relPath, description: cfg.description || ''}, {}, (err, str) => {
+    ejs.renderFile(`src/views/gallery.ejs`,  { avatar: relPath + cfg.avatar.replace('./','/'), title: cfg.title, galleryHtml: html, relPath: relPath, description: cfg.description || '', config:cfg}, {}, (err, str) => {
         if (err) {
             console.error(`Error rendering template ${item.template}:`, err);
         } else {
