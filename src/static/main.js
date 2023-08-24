@@ -1,4 +1,3 @@
-// css
 require('./orientationchange');
 
 var supportOrientation = (typeof window.orientation === 'number' && typeof window.onorientationchange === 'object');
@@ -46,6 +45,44 @@ window.onload = function() {
 	var curType = window.neworientation.init;
 	resizeHandle(curType);
 	// swipe.init();
+	
+
+	if(typeof PhotoSwipeLightbox!='undefined'){
+		var lightbox = new PhotoSwipeLightbox({
+			gallery: '.photos',
+			children: 'a',
+			// dynamic import is not supported in UMD version
+			pswpModule: PhotoSwipe 
+		  });
+		  lightbox.on('uiRegister', function() {
+		  lightbox.pswp.ui.registerElement({
+			name: 'custom-caption',
+			order: 9,
+			isButton: false,
+			appendTo: 'root',
+			html: 'Caption text',
+			onInit: (el, pswp) => {
+			  lightbox.pswp.on('change', () => {
+				const currSlideElement = lightbox.pswp.currSlide.data.element;
+				let captionHTML = '';
+				if (currSlideElement) {
+				  const hiddenCaption = currSlideElement.querySelector('.hidden-caption-content');
+				  
+				  if (hiddenCaption) {
+					// get caption from element with class hidden-caption-content
+					captionHTML = hiddenCaption.innerHTML;
+				  } else {
+					// get caption from alt attribute
+					// captionHTML = currSlideElement.querySelector('img').getAttribute('alt');
+				  }
+				}
+				el.innerHTML = captionHTML || '';
+			  });
+			}
+		  });
+		});
+		lightbox.init();
+	}
 
 	window.addEventListener('orientationchange', function () {
 		if (curType !== window.neworientation.current) {

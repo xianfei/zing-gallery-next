@@ -1,7 +1,5 @@
-var webpack = require("webpack");
-
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: {
     main: "./src/static/main.js"
   },

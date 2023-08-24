@@ -1,22 +1,23 @@
-<html>
+<html lang="zh-cn">
 <head>
+	<meta charset="UTF-8">
 	<title><%- title %></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<link rel="stylesheet" type="text/css" href="<%= relPath %>/main.css">
 </head>
 <body>
 	<header>
-		<a href="./">
+		<a href="<%= relPath %>/">
 			<img src="<%= avatar %>" class="header-avater" />
 		</a>
-		<a href="./">
+		<a href="<%= relPath %>/">
 			<h1 class="header-title"><%= title %></h1>
 		</a>
 		<% if(description!='') {%>
 		<ul class="m-nav">
 			<%- description %>
 		</ul>
-		<% } %>
+		<% } %>		
 	</header>
   <div class="layout">
   	<%- galleryHtml %>
