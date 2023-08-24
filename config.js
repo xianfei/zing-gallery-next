@@ -1,7 +1,8 @@
 module.exports = {
 	cdnDomain: './',
 	title: 'Zing Gallery Next',
-	picFormat: 'jpg',
+	picFormat: 'avif',
+	picQuality: 75,
 	avatar: './avatar.png',
 	wording: {
 		noAccess: '抱歉，你没有权限访问'

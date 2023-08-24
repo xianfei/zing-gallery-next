@@ -57,13 +57,14 @@ async function processImage(inputPath, outputPath, smallSize, config) {
     if (inputPath.toLowerCase().endsWith('.' + config.picFormat)) {
         await fs.copyFile(inputPath, outputPath);
     } else {
-        await sharp(inputPath).toFile(outputPath);
+        await sharp(inputPath)[config.picFormat]({quality: config.picQuality}).toFile(outputPath);
     }
 
     // 创建缩小的图片
     const outputPathSmall = getPathWithoutExt(outputPath) + '-small.' + config.picFormat
     await sharp(inputPath)
         .resize(smallSize)
+        [config.picFormat]({quality: config.picQuality})
         .toFile(outputPathSmall);
 
 
