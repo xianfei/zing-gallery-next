@@ -51,6 +51,7 @@ window.onload = function() {
 		var lightbox = new PhotoSwipeLightbox({
 			gallery: '.photos',
 			children: 'a',
+			bgOpacity: 0.9,
 			// dynamic import is not supported in UMD version
 			pswpModule: PhotoSwipe 
 		  });

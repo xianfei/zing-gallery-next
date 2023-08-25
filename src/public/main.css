@@ -408,5 +408,46 @@ header {
 .exif-info{
   padding: 2px 18px;
   border-radius: 4px;
+  padding-top: 0;
   background: rgba(0,0,0, 0.75);
+  padding-right: 8px;
+}
+
+.exif-info i{
+  padding-right: 3px;
+}
+
+.date {
+  position: absolute;
+  text-align: left;
+  width: 300px;
+  display: inline-block;
+  line-height: 24px;
+  bottom: 4px;
+  left: 8px;
+  font-size: 13px;
+  color: #999;
+}
+
+.date i{
+  font-size: 11px;
+  padding-right: 3px;
+}
+
+.type {
+  position: absolute;
+  text-align: right;
+  width: 300px;
+  display: inline-block;
+  line-height: 24px;
+  bottom: 4px;
+  right: 8px;
+  font-size: 13px;
+  color: #999;
+}
+
+.type i{
+  font-size: 11px;
+  padding-right: 3px;
+  font-weight: 800;
 }

@@ -16,11 +16,14 @@ module.exports = {
 		}, 
 		"手机摄影": {
 			description:"Hello world",
+			type:"日常",
 		  sort: 1
 		}, 
 		"江南小镇": {
 		  description : "没有什么能够阻挡",
 			thumbnail: "燕歌行.jpg",
+			type:"旅行",
+			date:"2017-5",
 		  name: "南浔"
 		},
 		"私密": {

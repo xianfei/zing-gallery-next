@@ -12,6 +12,12 @@
           <% } %>
             <img class="js-image" alt="<%= album.name %>" data-src="<%= config.cdnDomain %><%= album.url %>/thumbnail.<%= config.picFormat %>" src="./preloader.gif" itemprop="thumbnail" data-not-lz="true" />
           </a>
+          <% if(album.date) {%>
+          <span class="date"><i class="icon-clock"></i><%= album.date %></span>
+          <% } %>
+          <% if(album.type) {%>
+          <span class="type"><i class="icon-star-empty"></i><%= album.type %></span>
+          <% } %>
           <figcaption itemprop="caption description"><%= album.name %></figcaption>
       </figure>
     <% }) %>

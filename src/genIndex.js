@@ -11,7 +11,7 @@ function getAlbums(albums, cfg){
     let albs = []
     for(var i of albums){
         let name = path.parse(i).name
-        albs.push({name:cfg.albums[name]?.name ||name,url:name,})
+        albs.push({name:cfg.albums[name]?.name ||name,url:name,type:cfg.albums[name]?.type||null,date:cfg.albums[name]?.date||null})
     }
     return albs
 }
