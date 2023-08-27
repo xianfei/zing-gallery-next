@@ -22,7 +22,7 @@ function getPathWithoutExt(filePath) {
     return path.join(parsedPath.dir, parsedPath.name);
 }
 
-async function processImage(inputPath, outputPath, smallSize, config) {
+async function processImage(inputPath, outputPath, smallSize, config, file) {
     const metadata = await sharp(inputPath).metadata();
     const data = metadata.exif ? exifReader(metadata.exif) : null;
 
@@ -42,7 +42,10 @@ async function processImage(inputPath, outputPath, smallSize, config) {
             "ISO": data.exif.ISO || '',
             // 快门速度
             "speed": data.exif.ShutterSpeedValue ? (Math.pow(2, data.exif.ShutterSpeedValue) > 1.0 ? ('1/' + Math.round(Math.pow(2, data.exif.ShutterSpeedValue))) : Math.round(1 / Math.pow(2, data.exif.ShutterSpeedValue))) : '' || ''
-        } : null
+        } : null,
+        name: path.parse(file).name,
+        src: path.parse(file).name + '.' + config.picFormat,
+        smallsrc: path.parse(file).name + '-small.' + config.picFormat
     };
 
     // 如果文件已存在，则跳过处理
@@ -57,14 +60,14 @@ async function processImage(inputPath, outputPath, smallSize, config) {
     if (inputPath.toLowerCase().endsWith('.' + config.picFormat)) {
         await fs.copyFile(inputPath, outputPath);
     } else {
-        await sharp(inputPath)[config.picFormat=='jpg'?'jpeg':config.picFormat]({quality: config.picQuality}).toFile(outputPath);
+        await sharp(inputPath)[config.picFormat == 'jpg' ? 'jpeg' : config.picFormat]({ quality: config.picQuality }).toFile(outputPath);
     }
 
     // 创建缩小的图片
     const outputPathSmall = getPathWithoutExt(outputPath) + '-small.' + config.picFormat
     await sharp(inputPath)
         .resize(smallSize)
-        [config.picFormat=='jpg'?'jpeg':config.picFormat]({quality: config.picQuality})
+    [config.picFormat == 'jpg' ? 'jpeg' : config.picFormat]({ quality: config.picQuality })
         .toFile(outputPathSmall);
 
 
@@ -75,7 +78,7 @@ async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config
     const files = await fs.readdir(albumPath);
     const jpgFiles = files.filter(file => file.toLowerCase().endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.webp') || file.endsWith('.avif'));
 
-    const imageSizeInfo = [];
+    const imageProcessor = [];
 
 
 
@@ -83,21 +86,16 @@ async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config
         const file = jpgFiles[i];
         const inputPath = path.join(albumPath, file);
         const outputPath = path.join(outputAlbumPath, file);
-
+    
         // 处理图片，创建缩小版本
-        const dimensions = await processImage(inputPath, getPathWithoutExt(outputPath) + '.' + config.picFormat, 400, config);
-        if (dimensions) {
-            imageSizeInfo.push({
-                name: path.parse(file).name,
-                src: path.parse(file).name + '.' + config.picFormat,
-                smallsrc: path.parse(file).name + '-small.' + config.picFormat,
-                size: "" + dimensions.width + "x" + dimensions.height,
-                width: dimensions.width,
-                height: dimensions.height,
-                exif: dimensions.exif
-            });
-        }
+        imageProcessor.push( processImage(inputPath, getPathWithoutExt(outputPath) + '.' + config.picFormat, 400, config, file));
+    }
 
+    const imageSizeInfo = await Promise.all(imageProcessor)
+
+    for (let i = 0; i < jpgFiles.length; i++) {
+        const file = jpgFiles[i];
+        const outputPath = path.join(outputAlbumPath, file);
         // 将第一张图片设置为缩略图
         if ((!config.albums[albumName]?.thumbnail && i === 0) || config.albums[albumName]?.thumbnail == file) {
             const thumbnailOutputPath = path.join(outputAlbumPath, 'thumbnail.' + config.picFormat);

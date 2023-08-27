@@ -41,7 +41,41 @@ var resizeHandle = function (type) {
 	lazy.init();
 }
 
-window.onload = function() {
+async function supportsImgType(type) {
+	// Create
+	//
+	// <picture>
+	//   <source srcset="data:,x" type="{type}" />
+	//   <img />
+	// </picture>
+	//
+	// (where "data:,x" is just a minimal URL that is valid but doesn't trigger network)
+	let img = document.createElement('img');
+	document.createElement('picture').append(
+	  Object.assign(document.createElement('source'), {
+		srcset: 'data:,x',
+		type
+	  }),
+	  img
+	);
+	// Wait a single microtick just for the `img.currentSrc` to get populated.
+	await 0;
+	// At this point `img.currentSrc` will contain "data:,x" if format is supported and "" otherwise.
+	return !!img.currentSrc;
+}
+
+window.onload = async function() {
+	for(let format of JSON.parse(document.querySelector('meta[name="support-img-format"]').getAttribute('content'))){
+		const isSupport = await supportsImgType('image/'+(format=='jpg'?'jpeg':format))
+		if(isSupport){
+			console.log('Support:' + format)
+			break
+		}else{
+			console.log('Unsupport:' + format)
+		}
+	}
+
+
 	var curType = window.neworientation.init;
 	resizeHandle(curType);
 	// swipe.init();
