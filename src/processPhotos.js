@@ -67,7 +67,7 @@ async function processImage(inputPath, outputPath, smallSize, config, file) {
     const outputPathSmall = getPathWithoutExt(outputPath) + '-small.' + config.picFormat
     await sharp(inputPath)
         .resize(smallSize)
-    [config.picFormat == 'jpg' ? 'jpeg' : config.picFormat]({ quality: config.picQuality })
+    [config.picFormat == 'jpg' ? 'jpeg' : config.picFormat]({ quality: config.picQuality*0.8 })
         .toFile(outputPathSmall);
 
 
@@ -88,7 +88,7 @@ async function processAlbum(albumPath, outputAlbumPath, defaultThumbnail, config
         const outputPath = path.join(outputAlbumPath, file);
     
         // 处理图片，创建缩小版本
-        imageProcessor.push( processImage(inputPath, getPathWithoutExt(outputPath) + '.' + config.picFormat, 400, config, file));
+        imageProcessor.push( processImage(inputPath, getPathWithoutExt(outputPath) + '.' + config.picFormat, 600, config, file));
     }
 
     const imageSizeInfo = await Promise.all(imageProcessor)
